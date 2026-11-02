@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('import_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('filename');
-            $table->string('status')->default('pending'); // pending | processing | completed | failed
+            $table->string('status')->default('pending'); // pending | processing | completed | completed_with_errors | failed
             $table->integer('total_rows')->default(0);
             $table->integer('processed_rows')->default(0);
             $table->text('error_message')->nullable();

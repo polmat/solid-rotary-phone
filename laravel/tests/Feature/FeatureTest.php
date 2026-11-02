@@ -70,4 +70,41 @@ class FeatureTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    public function test_beta_disabled_feature_with_assigned_user_returns_403(): void
+    {
+        $feature = Feature::create(['name' => 'Beta', 'key' => 'beta', 'enabled' => false]);
+        $user = User::factory()->create();
+        $feature->users()->attach($user->id);
+
+        $response = $this->getJson("/api/beta?user_id={$user->id}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_disabled_feature_cannot_be_assigned_to_user(): void
+    {
+        $feature = Feature::create(['name' => 'Beta', 'key' => 'beta', 'enabled' => false]);
+        $user = User::factory()->create();
+
+        $response = $this->postJson("/api/features/{$feature->id}/assign/{$user->id}");
+
+        $response->assertStatus(403);
+        $response->assertJson(['message' => 'Feature is globally disabled.']);
+        $this->assertDatabaseMissing('feature_user', [
+            'feature_id' => $feature->id,
+            'user_id'    => $user->id,
+        ]);
+    }
+
+    public function test_beta_route_reports_globally_disabled_feature(): void
+    {
+        Feature::create(['name' => 'Beta', 'key' => 'beta', 'enabled' => false]);
+
+        // No user_id: the disabled check must come before any user handling.
+        $response = $this->getJson('/api/beta');
+
+        $response->assertStatus(403);
+        $response->assertJson(['message' => 'Feature is globally disabled.']);
+    }
 }

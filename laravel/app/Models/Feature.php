@@ -15,4 +15,18 @@ class Feature extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function isEnabledFor(?User $user): bool
+    {
+        if (! $user || ! $this->isEnabled()) {
+            return false;
+        }
+
+        return $this->users()->where('user_id', $user->id)->exists();
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ImportStatus;
 use App\Jobs\ProcessImportJob;
 use App\Models\ImportJob;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +22,7 @@ class ImportController extends Controller
 
         $job = ImportJob::create([
             'filename' => $filename,
-            'status'   => 'pending',
+            'status'   => ImportStatus::Pending,
         ]);
 
         ProcessImportJob::dispatch($job);
@@ -42,6 +43,8 @@ class ImportController extends Controller
             'status'         => $job->status,
             'total_rows'     => $job->total_rows,
             'processed_rows' => $job->processed_rows,
+            'failed_rows'    => $job->failed_rows,
+            'errors'         => $job->errors ?? [],
             'error_message'  => $job->error_message,
             'created_at'     => $job->created_at,
         ]);
