@@ -14,7 +14,7 @@ class FeatureEnabled
     {
         $feature = Feature::where('key', $featureKey)->first();
 
-        abort_if(! $feature, 404, 'Feature not found.');
+        abort_unless($feature, 404, 'Feature not found.');
         abort_unless($feature->isEnabled(), 403, 'Feature is globally disabled.');
 
         $userId = $request->query('user_id');
